@@ -12,6 +12,7 @@ export interface Arguments {
   secret: string
   alias?: string
   appID?: string
+  force: boolean
   timeout?: number
   cleverCLI: string
   extraEnv?: ExtraEnv
@@ -61,11 +62,13 @@ export function processArguments(): Arguments {
 
   const appID = core.getInput('appID')
   const alias = core.getInput('alias')
+  const force = core.getBooleanInput('force')
   const timeout = parseInt(core.getInput('timeout')) || undefined
   return {
     token,
     secret,
     alias,
+    force,
     appID,
     timeout,
     cleverCLI: path.resolve(__dirname, '../node_modules/.bin/clever'),
@@ -95,6 +98,7 @@ export default async function run({
   secret,
   appID,
   alias,
+  force,
   cleverCLI,
   timeout,
   extraEnv = {}
@@ -135,6 +139,11 @@ export default async function run({
       args.push('--alias', alias)
     }
 
+    core.info(`Force parameter: ${force}`)
+    if (force) {
+      args.push('--force')
+    }
+
     if (timeout) {
       let timeoutID: NodeJS.Timeout | undefined
       let timedOut = false
@@ -151,7 +160,7 @@ export default async function run({
       if (timedOut) {
         core.info('Deployment timed out, moving on with workflow run')
       }
-      core.info(`result: ${result}`)
+      core.info(`WESH WEEK END ! result: ${result}`)
       if (typeof result === 'number' && result !== 0) {
         throw new Error(`Deployment failed with code ${result}`)
       }
